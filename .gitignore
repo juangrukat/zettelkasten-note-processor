@@ -1,0 +1,32 @@
+# Config file with user settings (local only)
+zettelkasten_config.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Output files (don't commit generated notes)
+*.md
+notes/
+zettelkasten_notes/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.venv
+env/
+venv/
