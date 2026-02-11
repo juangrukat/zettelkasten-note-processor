@@ -1,6 +1,7 @@
 """
 View layer for Zettelkasten GUI.
 Tkinter widgets and layout, delegates all logic to controller.
+Uses event system for communication.
 """
 
 import tkinter as tk
@@ -8,6 +9,7 @@ from tkinter import ttk, messagebox, filedialog
 from pathlib import Path
 from typing import Optional
 from controller import ZettelkastenController, ProcessingResult
+from src.events import EventType, Event
 
 
 class LabeledEntry(ttk.Frame):
@@ -96,6 +98,7 @@ class ZettelkastenView:
     """
     Main application window for Zettelkasten processor.
     Thin wrapper around Tkinter, delegates all logic to controller.
+    Uses event system for communication.
     """
 
     def __init__(self, root: tk.Tk, controller: ZettelkastenController):
@@ -106,11 +109,30 @@ class ZettelkastenView:
         self.root.geometry("700x600")
         self.root.minsize(600, 400)
 
-        # Set up status callback
-        self.controller.set_status_callback(self._update_status)
+        # Set up event listeners
+        self._setup_event_listeners()
 
         self._create_widgets()
         self._load_saved_config()
+
+    def _setup_event_listeners(self) -> None:
+        """Set up event listeners for controller events."""
+        self.controller.event_dispatcher.add_listener(
+            EventType.STATUS_UPDATED,
+            self._on_status_updated
+        )
+        self.controller.event_dispatcher.add_listener(
+            EventType.ERROR_OCCURRED,
+            self._on_error_occurred
+        )
+        self.controller.event_dispatcher.add_listener(
+            EventType.PROCESSING_STARTED,
+            self._on_processing_started
+        )
+        self.controller.event_dispatcher.add_listener(
+            EventType.PROCESSING_COMPLETED,
+            self._on_processing_completed
+        )
 
     def _create_widgets(self) -> None:
         """Create and layout all widgets."""
@@ -229,6 +251,22 @@ class ZettelkastenView:
         """Update status bar message."""
         self.status_label.configure(text=message)
         self.root.update_idletasks()
+
+    def _on_status_updated(self, event: Event) -> None:
+        """Handle status update events."""
+        self._update_status(event.data)
+
+    def _on_error_occurred(self, event: Event) -> None:
+        """Handle error events."""
+        self._update_status(f"Error: {event.data}")
+
+    def _on_processing_started(self, event: Event) -> None:
+        """Handle processing started event."""
+        self._update_status("Processing...")
+
+    def _on_processing_completed(self, event: Event) -> None:
+        """Handle processing completed event."""
+        self._update_status("Ready")
 
     def _on_process(self) -> None:
         """Handle Process button click."""

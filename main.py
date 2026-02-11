@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Zettelkasten Note Processor - GUI Entry Point
-=============================================
-Simple Tkinter front end for noter.py
+============================================
+Simple Tkinter front end using modular architecture.
 
 Usage:
     python main.py
